@@ -1,0 +1,74 @@
+{
+  "name": "Acme Cloud support bot – sample run",
+  "cases": [
+    {
+      "id": "refund-window",
+      "question": "How many days do I have to request a refund on an annual plan?",
+      "contexts": [
+        "Annual plans can be refunded in full if you cancel within 30 days of purchase. After 30 days, annual plans are not refundable.",
+        "Monthly plans renew automatically on the same day each month and can be cancelled at any time from the Billing page."
+      ],
+      "answer": "You can get a full refund on an annual plan if you cancel within 30 days of purchase. After that, annual plans are not refundable."
+    },
+    {
+      "id": "refund-window-hallucinated",
+      "question": "How many days do I have to request a refund on an annual plan?",
+      "contexts": [
+        "Annual plans can be refunded in full if you cancel within 30 days of purchase. After 30 days, annual plans are not refundable."
+      ],
+      "answer": "Annual plans can be refunded within 60 days of purchase. You will also receive a 20% credit toward your next plan."
+    },
+    {
+      "id": "storage-limit",
+      "question": "What is the storage limit on the Team plan?",
+      "contexts": [
+        "The Team plan includes 2 TB of shared storage per workspace and up to 25 members. Extra storage can be added in 1 TB blocks.",
+        "The Free plan includes 5 GB of storage for a single user."
+      ],
+      "answer": "The Team plan includes 2 TB of shared storage per workspace. You can add extra storage in 1 TB blocks."
+    },
+    {
+      "id": "sso-off-topic-retrieval",
+      "question": "Does Acme support single sign-on with Okta?",
+      "contexts": [
+        "To reset your password, click Forgot password on the sign-in page and follow the link sent to your email.",
+        "Our offices are closed on public holidays. Support tickets are answered on the next business day."
+      ],
+      "answer": "Yes, Acme supports single sign-on with Okta on all plans."
+    },
+    {
+      "id": "sso-declined",
+      "question": "Does Acme support single sign-on with Okta?",
+      "contexts": [
+        "To reset your password, click Forgot password on the sign-in page and follow the link sent to your email."
+      ],
+      "answer": "I couldn't find information about Okta single sign-on in the documentation I have. Please contact support to confirm."
+    },
+    {
+      "id": "file-size-partial",
+      "question": "What is the maximum upload file size and which file types are blocked?",
+      "contexts": [
+        "The maximum file size for a single upload is 50 GB through the desktop app and 5 GB through the web browser.",
+        "Executable file types such as .exe and .bat are blocked from sharing until they have been scanned for malware."
+      ],
+      "answer": "The maximum upload file size is 50 GB in the desktop app and 5 GB in the web browser. Executable file types are blocked until they have been scanned for malware. Video files longer than two hours are also blocked."
+    },
+    {
+      "id": "data-residency",
+      "question": "Where is customer data stored?",
+      "contexts": [
+        "Customer data is stored in AWS data centers in the United States by default. Enterprise customers can choose EU data residency in Frankfurt.",
+        "All data is encrypted at rest with AES-256 and in transit with TLS 1.2 or higher."
+      ],
+      "answer": "Customer data is stored in AWS data centers in the United States by default, and Enterprise customers can choose EU data residency in Frankfurt. Data is encrypted at rest with AES-256 and in transit with TLS 1.2 or higher."
+    },
+    {
+      "id": "seat-price-wrong-number",
+      "question": "How much does an extra seat cost on the Team plan?",
+      "contexts": [
+        "Each additional seat on the Team plan costs $12 per user per month, billed annually, or $15 per user per month billed monthly."
+      ],
+      "answer": "Each additional seat on the Team plan costs $10 per user per month when billed annually."
+    }
+  ]
+}

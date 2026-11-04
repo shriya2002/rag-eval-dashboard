@@ -1,0 +1,33 @@
+{
+  "name": "rag-eval-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evaluate retrieval-augmented generation (RAG) answers for groundedness, context relevance and answer relevance, sentence by sentence, with an optional LLM judge.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Shriya Vyamajala",
+  "repository": { "type": "git", "url": "https://github.com/shriya2002/rag-eval-dashboard.git" },
+  "homepage": "https://shriya2002.github.io/rag-eval-dashboard/",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "node --import tsx src/server/main.ts",
+    "dev": "npm run build && npm start",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "tsx": "^4.20.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "esbuild": "^0.28.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": { "node": ">=20.6" }
+}
