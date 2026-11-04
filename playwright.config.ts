@@ -15,7 +15,7 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${PORT}`, trace: "retain-on-failure" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npm run build && node --import tsx src/server/main.ts",
+    command: "npm run build && npx tsx src/server/main.ts",
     url: `http://localhost:${PORT}/api/health`,
     env: { PORT: String(PORT), DATA_FILE },
     reuseExistingServer: false,

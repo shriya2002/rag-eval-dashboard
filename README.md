@@ -79,7 +79,7 @@ See [`sample-data/acme-support-bot.json`](sample-data/acme-support-bot.json) for
 
 ## Run it locally
 
-Requires Node.js 20.6+.
+Requires Node.js 18.18 or newer (22 recommended).
 
 ```bash
 npm install
