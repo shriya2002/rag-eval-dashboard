@@ -30,7 +30,7 @@ export function Summary({ summary }: { summary: RunSummary }) {
           hint={`${summary.passed} pass · ${summary.review} review · ${summary.failed} fail`}
         />
         <Metric label="Groundedness" value={summary.avgGroundedness} hint="Answer claims backed by context" />
-        <Metric label="Context relevance" value={summary.avgContextRelevance} hint="Retrieved chunks on topic" />
+        <Metric label="Context relevance" value={summary.avgContextRelevance} hint="Best retrieved chunk on topic" />
         <Metric label="Answer relevance" value={summary.avgAnswerRelevance} hint="Answers address the question" />
       </dl>
     </section>

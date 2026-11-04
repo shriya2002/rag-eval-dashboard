@@ -53,8 +53,10 @@ export interface CaseResult {
   question: string;
   answer: string;
   contexts: string[];
-  /** Mean relevance of the retrieved chunks to the question (0-1). Low = the retriever fetched noise. */
+  /** Relevance of the best retrieved chunk to the question (0-1). Low = retrieval missed. */
   contextRelevance: number;
+  /** Share of retrieved chunks that are on topic (0-1). Low = the retriever fetched noise. */
+  contextPrecision: number;
   /** Relevance of each chunk to the question (0-1), same order as `contexts`. */
   contextScores: number[];
   /** How directly the answer addresses the question (0-1). */

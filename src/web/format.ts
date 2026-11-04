@@ -17,9 +17,11 @@ function csvCell(value: string | number) {
 }
 
 export function toCsv(run: EvalRun): string {
-  const header = ["id", "verdict", "groundedness", "context_relevance", "answer_relevance", "overall", "question", "reasons"];
+  const header = [
+    "id", "verdict", "groundedness", "context_relevance", "context_precision", "answer_relevance", "overall", "question", "reasons",
+  ];
   const rows = run.results.map((r: CaseResult) =>
-    [r.id, r.verdict, r.groundedness, r.contextRelevance, r.answerRelevance, r.overall, r.question, r.reasons.join(" | ")]
+    [r.id, r.verdict, r.groundedness, r.contextRelevance, r.contextPrecision, r.answerRelevance, r.overall, r.question, r.reasons.join(" | ")]
       .map(csvCell)
       .join(","),
   );

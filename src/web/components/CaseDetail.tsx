@@ -84,7 +84,14 @@ export function CaseDetail({ result, onClose }: { result: CaseResult; onClose: (
         </>
       )}
 
-      <h4>Retrieved context</h4>
+      <h4>
+        Retrieved context{" "}
+        {result.contexts.length > 0 && (
+          <span className="muted">
+            ({result.contextScores.filter((score) => score >= 0.3).length} of {result.contexts.length} chunks on topic)
+          </span>
+        )}
+      </h4>
       {result.contexts.length === 0 ? (
         <p className="muted">The retriever returned no chunks.</p>
       ) : (

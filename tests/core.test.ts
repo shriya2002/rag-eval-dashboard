@@ -70,7 +70,28 @@ describe("evaluateCase", () => {
     const r = evaluateCase(byId("sso-off-topic-retrieval"));
     assert.equal(r.verdict, "fail");
     assert.ok(r.contextRelevance < 0.3, `contextRelevance ${r.contextRelevance}`);
-    assert.ok(r.reasons.some((m) => m.includes("unrelated")));
+    assert.ok(r.reasons.includes("None of the retrieved chunks is about the question."));
+  });
+
+  it("passes a correct answer even when the retriever also returned an off-topic chunk", () => {
+    const r = evaluateCase({
+      id: "office-hours",
+      question: "What time does the office open?",
+      contexts: ["Our office is open Monday to Friday from 9 AM to 5 PM.", "We are closed on public holidays."],
+      answer: "The office opens at 9 AM, Monday to Friday.",
+    });
+    assert.equal(r.verdict, "pass");
+    assert.equal(r.groundedness, 1);
+    assert.deepEqual(r.contextScores, [0.53, 0]);
+    assert.equal(r.contextRelevance, 0.53, "scored by the best chunk");
+    assert.equal(r.contextPrecision, 0.5, "half the chunks were on topic");
+    assert.ok(r.reasons.some((m) => m.includes("retrieval noise")));
+  });
+
+  it("decides the verdict from the rounded score that is shown", () => {
+    const r = evaluateCase(byId("storage-limit"));
+    assert.equal(r.overall, Math.round(r.overall * 100) / 100);
+    assert.equal(r.verdict, r.overall >= DEFAULT_THRESHOLDS.passOverall && r.groundedness >= 0.8 ? "pass" : "review");
   });
 
   it("sends abstentions to human review instead of failing them", () => {

@@ -14,6 +14,9 @@ import {
 /** Weights for the overall score. Groundedness dominates: a fluent but invented answer is the worst outcome. */
 const WEIGHTS = { groundedness: 0.5, contextRelevance: 0.25, answerRelevance: 0.25 };
 
+/** A chunk scoring below this is treated as unrelated to the question. */
+const RELEVANT_CHUNK = 0.3;
+
 function mean(values: number[]): number {
   return values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
 }
@@ -21,7 +24,8 @@ function mean(values: number[]): number {
 /**
  * Scores one RAG response with three lexical metrics:
  *
- * - context relevance: did the retriever fetch chunks about the question?
+ * - context relevance: did the retriever find at least one chunk about the question?
+ *   (context precision separately reports what share of chunks were on topic)
  * - answer relevance: does the answer address the question?
  * - groundedness: is each answer sentence backed by a retrieved chunk, and do its
  *   numbers (prices, days, percentages) actually appear in the chunks?
@@ -43,11 +47,21 @@ export function evaluateCase(
   const sentenceTokens = sentences.map(contentTokens);
   const idf = buildIdf([question, answer, ...contexts, ...sentenceTokens]);
 
-  // 1. Context relevance
+  // 1. Context relevance: did the retriever find at least one chunk about the question?
+  // Scored by the best chunk, so one good chunk plus some extra noise isn't penalised as
+  // if retrieval had failed. Noise is tracked separately as context precision.
   const contextScores = contexts.map((c) => round2(weightedCoverage(question, c, idf)));
-  const contextRelevance = mean(contextScores);
+  const contextRelevance = contextScores.length ? Math.max(...contextScores) : 0;
+  const contextPrecision = contextScores.length
+    ? contextScores.filter((score) => score >= RELEVANT_CHUNK).length / contextScores.length
+    : 0;
+  const notes: string[] = [];
   if (input.contexts.length === 0) reasons.push("The retriever returned no context.");
-  else if (contextRelevance < 0.3) reasons.push("Retrieved chunks are mostly unrelated to the question.");
+  else if (contextRelevance < RELEVANT_CHUNK) reasons.push("None of the retrieved chunks is about the question.");
+  else if (contextPrecision < 1) {
+    const noisy = contextScores.filter((score) => score < RELEVANT_CHUNK).length;
+    notes.push(`${noisy} of ${contextScores.length} retrieved chunks look unrelated to the question (retrieval noise).`);
+  }
 
   // 2. Answer relevance
   const abstained = isAbstention(input.answer);
@@ -107,18 +121,23 @@ export function evaluateCase(
   }
   const finalAnswerRelevance = judge ? (answerRelevance + judge.relevance) / 2 : answerRelevance;
 
-  const overall =
+  // Round once, then decide the verdict from the same numbers the user sees,
+  // so a case shown as "70%" can't fail a 70% threshold because of hidden decimals.
+  const shownGroundedness = round2(groundedness);
+  const shownOverall = round2(
     WEIGHTS.groundedness * groundedness +
-    WEIGHTS.contextRelevance * contextRelevance +
-    WEIGHTS.answerRelevance * finalAnswerRelevance;
+      WEIGHTS.contextRelevance * contextRelevance +
+      WEIGHTS.answerRelevance * finalAnswerRelevance,
+  );
 
   let verdict: Verdict;
-  if (groundedness < thresholds.failGroundedness) verdict = "fail";
+  if (shownGroundedness < thresholds.failGroundedness) verdict = "fail";
   else if (abstained) verdict = "review";
-  else if (overall >= thresholds.passOverall && groundedness >= thresholds.passGroundedness) verdict = "pass";
+  else if (shownOverall >= thresholds.passOverall && shownGroundedness >= thresholds.passGroundedness) verdict = "pass";
   else verdict = "review";
 
   if (verdict === "pass" && reasons.length === 0) reasons.push("Answer is relevant and fully supported by the context.");
+  reasons.push(...notes);
 
   return {
     id: input.id,
@@ -126,12 +145,13 @@ export function evaluateCase(
     answer: input.answer,
     contexts: input.contexts,
     contextRelevance: round2(contextRelevance),
+    contextPrecision: round2(contextPrecision),
     contextScores,
     answerRelevance: round2(finalAnswerRelevance),
-    groundedness: round2(groundedness),
+    groundedness: shownGroundedness,
     sentences: checks,
     abstained,
-    overall: round2(overall),
+    overall: shownOverall,
     verdict,
     reasons,
     ...(judge ? { judge } : {}),

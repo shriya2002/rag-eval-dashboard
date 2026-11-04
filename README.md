@@ -21,11 +21,12 @@ This dashboard catches both, case by case, so you can compare runs before and af
 
 | Metric | Question it answers | How it's computed |
 | --- | --- | --- |
-| **Context relevance** | Did the retriever fetch chunks about the question? | For each chunk, the IDF-weighted share of the question's key terms it contains; averaged over chunks, so off-topic chunks pull the score down |
+| **Context relevance** | Did the retriever find at least one chunk about the question? | For each chunk, the IDF-weighted share of the question's key terms it contains; the best chunk's score is used |
+| **Context precision** | How much of what was retrieved is noise? | Share of chunks that score as on topic. Shown per case and in the CSV; reported as a note, not a penalty, so one extra off-topic chunk doesn't block a correct answer |
 | **Answer relevance** | Does the answer address the question? | IDF-weighted share of the question's key terms present in the answer |
 | **Groundedness** | Is every claim backed by the context? | Each answer sentence is matched against its best chunk. A sentence is supported only if enough of its key terms appear there **and** every number in it (prices, days, percentages) appears in some chunk |
 
-**Overall** = 50% groundedness + 25% context relevance + 25% answer relevance. A case **fails** if groundedness is under 50%, **passes** if overall ≥ 70% and groundedness ≥ 80%, and otherwise goes to **review**. Answers where the model declines ("I couldn't find that…") always go to review, because a person should confirm the information really was missing. All thresholds can be overridden per run.
+**Overall** = 50% groundedness + 25% context relevance + 25% answer relevance. A case **fails** if groundedness is under 50%, **passes** if overall ≥ 70% and groundedness ≥ 80%, and otherwise goes to **review**. Answers where the model declines ("I couldn't find that…") always go to review, because a person should confirm the information really was missing. Verdicts are decided from the same rounded scores shown in the UI, so a case displayed as 70% never fails a 70% threshold. All thresholds can be overridden per run.
 
 ### Lexical baseline + optional LLM judge
 
@@ -92,7 +93,7 @@ Runs are saved to `data/runs.json` (set `DATA_FILE` to change it, `PORT` to chan
 ## Tests
 
 ```bash
-npm test                    # 24 unit + API tests (scoring, validation, HTTP routes, judge parsing, persistence)
+npm test                    # 26 unit + API tests (scoring, validation, HTTP routes, judge parsing, persistence)
 npx playwright install chromium
 npm run test:e2e            # 6 browser tests (full flow, filtering, sorting, persistence, errors, demo mode)
 npm run typecheck
